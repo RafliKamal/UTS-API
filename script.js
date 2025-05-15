@@ -35,7 +35,7 @@ function displayNews(articles) {
                 <p class="card-text flex-grow-1">${
                   article.description || "No description available."
                 }</p>
-                <button class="btn btn-primary mt-2" onclick="showDetails(${index})" data-toggle="modal" data-target="#newsModal">Read More</button>
+                <button class="btn btn-dark mt-2" onclick="showDetails(${index})" data-toggle="modal" data-target="#newsModal">Read More</button>
             </div>
         </div>
     </div>
@@ -45,7 +45,7 @@ function displayNews(articles) {
   $("#news-list").html(newsHtml);
 }
 
-// Populate source filter dropdown
+// masukkan data ke dalam filter source
 function populateSourceFilter(articles) {
   let sources = [...new Set(articles.map((article) => article.source.name))];
   let selectedSource = $("#source-filter").val(); // Simpan pilihan sebelumnya
@@ -63,7 +63,7 @@ function populateSourceFilter(articles) {
   }
 }
 
-// Show full article detail
+// tampilkan full article detail
 function showDetails(index) {
   let article = allArticles[index];
   let detailsHtml = `
@@ -80,7 +80,7 @@ function showDetails(index) {
         <p>${article.description || "No description available."}</p>
         <a href="${
           article.url
-        }" target="_blank" class="btn btn-success">Open Full Articles</a>
+        }" target="_blank" class="btn btn-dark">Open Full Articles</a>
     `;
   $("#news-details").html(detailsHtml);
 }
@@ -182,7 +182,7 @@ function fetchTodayExchangeRates() {
       }
 
       const carouselHtml = `
-<h5 class="mb-3 text-center">📊 Kurs Hari Ini</h5>
+<h5 class="mb-3 text-center">📊 today's exchange rate</h5>
 <div id="currencyCarousel" class="carousel slide" data-ride="carousel" data-interval="4000">
     <div class="carousel-inner">
         ${slidesHtml}
@@ -200,7 +200,7 @@ function fetchTodayExchangeRates() {
 
       $("#currency-rate").html(carouselHtml);
 
-      // Inisialisasi carousel setelah HTML terpasang
+      // Inisialisasi carousel setelah HTML berhasil diload
       $("#currencyCarousel").carousel({
         interval: 5000,
         pause: false,
@@ -294,23 +294,34 @@ $("#input-search").on("keypress", function (e) {
 });
 $("#source-filter").change(searchAndFilterNews);
 
-
 $("#search-city-btn").on("click", function () {
   const city = $("#city-input").val().trim();
   if (city) {
     fetchWeather(city);
+    $("#show-all-cities").show();
   }
 });
+
+$("#city-input").on("keypress", function (e) {
+  if (e.keyCode === 13) {
+    const city = $(this).val().trim();
+    if (city) {
+      fetchWeather(city);
+      $("#show-all-cities").show();
+    }
+  }
+});
+$("#show-all-cities").fadeIn();
+
+
 $("#show-all-cities").on("click", function () {
   fetchMultipleCitiesWeather();
+  $("#show-all-cities").hide();
 });
-
-
-
 
 $(document).ready(() => {
   fetchNews();
   fetchTodayExchangeRates();
-  fetchMultipleCitiesWeather(); 
+  fetchMultipleCitiesWeather();
+  $("#show-all-cities").hide(); 
 });
-
