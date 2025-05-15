@@ -212,88 +212,78 @@ function fetchTodayExchangeRates() {
 function fetchMultipleCitiesWeather() {
   const WEATHER_API_KEY = "9548221e8b634c39004ee0f0e639d970";
   const cities = [
-  "Washington, D.C.",  // Amerika Serikat
-  "Beijing",           // China
-  "Tokyo",             // Jepang
-  "Jakarta",         // Indonesia
-  "Moscow",            // Rusia
-  "London",            // Inggris
-  "Berlin",            // Jerman
-  "Paris",             // Prancis
-  "Brasília",          // Brasil
-  "Canberra",          // Australia
-  "Ottawa",            // Kanada
-  "Seoul"              // Korea Selatan
-];
+    "Washington, D.C.",
+    "Beijing",
+    "Tokyo",
+    "Jakarta",
+    "Moscow",
+    "London",
+    "Berlin",
+    "Paris",
+    "Brasília",
+    "Canberra",
+    "Ottawa",
+    "Seoul"
+  ];
 
-  const itemsPerSlide = 4;
-  let weatherData = [];
-
-  let requests = cities.map((city) => {
-    return $.ajax({
+  let requests = cities.map((city) =>
+    $.ajax({
       url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id`,
-      method: "GET",
-    });
-  });
+      method: "GET"
+    })
+  );
 
   Promise.all(requests)
     .then((responses) => {
-      weatherData = responses;
+      let html = "";
+      responses.forEach((data) => {
+        html += `
+          <div class="card mb-2 shadow-sm">
+            <div class="card-body p-2 text-center">
+              <h6 class="mb-1">${data.name}</h6>
+              <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" style="width:50px;">
+              <p class="mb-1 small">${data.weather[0].description}</p>
+              <p class="mb-1"><strong>${data.main.temp}°C</strong></p>
+              <small>Kelembapan: ${data.main.humidity}%<br>Angin: ${data.wind.speed} m/s</small>
+            </div>
+          </div>
+        `;
+      });
 
-      let slidesHtml = "";
-      for (let i = 0; i < weatherData.length; i += itemsPerSlide) {
-        let chunk = weatherData.slice(i, i + itemsPerSlide);
-        slidesHtml += `<div class="carousel-item ${i === 0 ? "active" : ""}">
-                        <div class="d-flex justify-content-around flex-wrap">`;
-
-        chunk.forEach((data) => {
-          slidesHtml += `
-            <div class="card shadow-sm m-2" style="width: 200px;">
-              <div class="card-body text-center">
-                <h6 class="card-title">${data.name}</h6>
-                <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}">
-                <p class="mb-1">${data.weather[0].description}</p>
-                <p class="mb-1"><strong>${data.main.temp}°C</strong></p>
-                <small>Kelembapan: ${data.main.humidity}%</small><br>
-                <small>Angin: ${data.wind.speed} m/s</small>
-              </div>
-            </div>`;
-        });
-
-        slidesHtml += `</div></div>`;
-      }
-
-      const carouselHtml = `
-        <div id="weatherCarousel" class="carousel slide" data-ride="carousel" data-interval="5000">
-          <div class="carousel-inner">${slidesHtml}</div>
-          <a class="carousel-control-prev" href="#weatherCarousel" role="button" data-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="sr-only">Previous</span>
-          </a>
-          <a class="carousel-control-next" href="#weatherCarousel" role="button" data-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="sr-only">Next</span>
-          </a>
-        </div>
-      `;
-setTimeout(() => {
-  $('#weatherCarousel').carousel({
-    interval: 5000, 
-    ride: 'carousel'
-  });
-}, ); 
-
-      $("#weather-info").html(carouselHtml);
-      
+      $("#weather-info").html(html);
     })
     .catch(() => {
-      $("#weather-info").html(`<div class="alert alert-danger text-center">Gagal memuat cuaca kota-kota populer.</div>`);
-      
+      $("#weather-info").html(`<div class="alert alert-danger text-center">Gagal memuat cuaca.</div>`);
     });
-
 }
 
+function fetchWeather(city) {
+  const WEATHER_API_KEY = "9548221e8b634c39004ee0f0e639d970";
 
+  $("#weather-info").html(`<div class="text-center">Memuat cuaca untuk ${city}...</div>`);
+
+  $.ajax({
+    url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id`,
+    method: "GET",
+    success: function (data) {
+      const html = `
+        <div class="card shadow-sm">
+          <div class="card-body p-2 text-center">
+            <h6 class="mb-1">${data.name}</h6>
+            <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" style="width:50px;">
+            <p class="mb-1 small">${data.weather[0].description}</p>
+            <p class="mb-1"><strong>${data.main.temp}°C</strong></p>
+            <small>Kelembapan: ${data.main.humidity}%<br>Angin: ${data.wind.speed} m/s</small>
+          </div>
+        </div>
+      `;
+      $("#weather-info").html(html);
+    },
+    error: function () {
+      $("#weather-info").html(`<div class="alert alert-danger text-center">Kota "${city}" tidak ditemukan.</div>`);
+    }
+  });
+}
 
 
 
@@ -305,13 +295,17 @@ $("#input-search").on("keypress", function (e) {
 $("#source-filter").change(searchAndFilterNews);
 
 
-$("#button-city").click(() => {
-  const city = $("#input-city").val().trim();
+$("#search-city-btn").on("click", function () {
+  const city = $("#city-input").val().trim();
   if (city) {
-    $("#weather-info").html("Memuat cuaca...");
     fetchWeather(city);
   }
 });
+$("#show-all-cities").on("click", function () {
+  fetchMultipleCitiesWeather();
+});
+
+
 
 
 $(document).ready(() => {
