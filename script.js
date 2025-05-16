@@ -241,7 +241,7 @@ function fetchMultipleCitiesWeather() {
               <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" style="width:50px;">
               <p class="mb-1 small">${data.weather[0].description}</p>
               <p class="mb-1"><strong>${data.main.temp}°C</strong></p>
-              <small>Humidity: ${data.main.humidity}%<br>Wind: ${data.wind.speed} m/s</small>
+              <small>Humidity:  ${data.main.humidity}%<br>Wind: ${data.wind.speed} m/s</small>
             </div>
           </div>
         `;
