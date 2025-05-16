@@ -1,10 +1,12 @@
-const NEWS_API_KEY = "f3685549a70c41a493b3cd0ecda9e4db";
+
 let allArticles = [];
 
-// tampilkan berita ketika halaman dimuat
+const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
+const NEWS_API_KEY = "f3685549a70c41a493b3cd0ecda9e4db";
+
 function fetchNews(query = "apple") {
   $.ajax({
-    url: `https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}`,
+    url: `${CORS_PROXY}https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}`,
     method: "GET",
     success: function (response) {
       if (response.status === "ok") {
@@ -15,6 +17,11 @@ function fetchNews(query = "apple") {
     },
     error: function (err) {
       console.error("Error fetching news:", err);
+      $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
+        </div>
+      `);
     },
   });
 }
@@ -108,17 +115,17 @@ function searchAndFilterNews() {
   );
 
   $.ajax({
-    url: `https://newsapi.org/v2/everything?q=${keyword}&apiKey=${NEWS_API_KEY}`,
+    url: `${CORS_PROXY}https://newsapi.org/v2/everything?q=${keyword}&apiKey=${NEWS_API_KEY}`,
     method: "GET",
     success: function (response) {
       console.log("API Response:", response);
       if (response.status === "ok") {
         if (response.totalResults === 0) {
           $("#news-list").html(`
-        <div class="col-12 text-center">
-          <div class="alert alert-warning">No news found for "<strong>${keyword}</strong>".</div>
-        </div>
-      `);
+            <div class="col-12 text-center">
+              <div class="alert alert-warning">No news found for "<strong>${keyword}</strong>".</div>
+            </div>
+          `);
           return;
         }
 
@@ -136,40 +143,30 @@ function searchAndFilterNews() {
 
         allArticles = articles;
         displayNews(allArticles);
-      } else if (
-        response.code === "rateLimited" ||
-        response.message?.includes("rate limit")
-      ) {
-        $("#news-list").html(`
-        <div class="col-12 text-center">
-          <div class="alert alert-warning">API rate limit exceeded. Please try again later.</div>
-        </div>
-      `);
       } else {
-        
         $("#news-list").html(`
-        <div class="col-12 text-center">
-          <div class="alert alert-danger">Error: ${
-            response.message || "Unknown error"
-          }</div>
-        </div>
-      `);
+          <div class="col-12 text-center">
+            <div class="alert alert-danger">Error: ${
+              response.message || "Unknown error"
+            }</div>
+          </div>
+        `);
       }
     },
     error: function (jqXHR, textStatus, errorThrown) {
       if (jqXHR.status === 429) {
         $("#news-list").html(`
-        <div class="col-12 text-center">
-          <div class="alert alert-warning">API rate limit exceeded (429). Please wait and try again later.</div>
-        </div>
-      `);
+          <div class="col-12 text-center">
+            <div class="alert alert-warning">API rate limit exceeded (429). Please wait and try again later.</div>
+          </div>
+        `);
       } else {
         console.error("Error fetching news:", textStatus, errorThrown);
         $("#news-list").html(`
-        <div class="col-12 text-center">
-          <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
-        </div>
-      `);
+          <div class="col-12 text-center">
+            <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
+          </div>
+        `);
       }
     },
   });
