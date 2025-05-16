@@ -1,7 +1,9 @@
 🌍 World Watcher
+
 World Watcher is a simple yet powerful web dashboard that keeps you informed about the world in one glance. It integrates real-time news, weather, and currency exchange rates into a single responsive interface.
 
 🚀 Features
+
 📰 Latest News – Stay up to date with current global headlines from GNews API.
 
 ☀️ Weather Updates – Get current weather data for your location or any city via OpenWeatherMap.
