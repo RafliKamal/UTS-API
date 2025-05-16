@@ -1,7 +1,7 @@
 let allArticles = [];
 
 const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
-const GNEWS_API_KEY = "d6863ac5fdbebfcfd59a1d91d078b11d"; 
+const GNEWS_API_KEY = "eab375807c600c1869105715bbee7d8b"; 
 
 function fetchNews(query = "update") {
   $.ajax({
@@ -16,7 +16,7 @@ function fetchNews(query = "update") {
       console.error("Error fetching news:", err);
       $("#news-list").html(`
         <div class="col-12 text-center">
-          <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
+          <div class="alert alert-danger">API usage has reached the limit, try again later</div>
         </div>
       `);
     },
@@ -241,7 +241,7 @@ function fetchMultipleCitiesWeather() {
               <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" style="width:50px;">
               <p class="mb-1 small">${data.weather[0].description}</p>
               <p class="mb-1"><strong>${data.main.temp}°C</strong></p>
-              <small>Humidity:  ${data.main.humidity}%<br>Wind: ${data.wind.speed} m/s</small>
+              <small>Humidity: ${data.main.humidity}%<br>Wind: ${data.wind.speed} m/s</small>
             </div>
           </div>
         `;
