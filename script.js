@@ -264,7 +264,7 @@ function fetchWeather(city) {
   );
 
   $.ajax({
-    url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id`,
+    url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=en`,
     method: "GET",
     success: function (data) {
       const html = `
@@ -274,7 +274,7 @@ function fetchWeather(city) {
             <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" style="width:50px;">
             <p class="mb-1 small">${data.weather[0].description}</p>
             <p class="mb-1"><strong>${data.main.temp}°C</strong></p>
-            <small>Kelembapan: ${data.main.humidity}%<br>Angin: ${data.wind.speed} m/s</small>
+            <small>Humidity: ${data.main.humidity}%<br>Wind: ${data.wind.speed} m/s</small>
           </div>
         </div>
       `;
