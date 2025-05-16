@@ -33,5 +33,4 @@ git clone https://github.com/your-username/world-watcher.git
 cd world-watcher
 Open index.html in your browser.
 
-Replace API keys in the script sections with your own.
-
+if the data doesn't display, it's because the API has reached its usage limit. Wait 24 hours and try again, or you can Replace the API keys in the script sections with your own.
