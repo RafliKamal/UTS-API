@@ -14,90 +14,117 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      body {
-        background-color: #f5f5f5;
-        padding: 0 10px;
-      }
+  body {
+    background-color: #f5f5f5;
+    padding: 0 10px;
+  }
 
-      .card-img-top {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        object-position: center;
-      }
+  .card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    object-position: center;
+  }
 
-      @media (max-width: 576px) {
-        .card-img-top {
-          height: 150px;
-        }
-      }
+  @media (max-width: 576px) {
+    .card-img-top {
+      height: 150px;
+    }
+  }
 
-      .sidebar {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow: hidden;
-      }
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-      .sidebar-inner {
-        position: sticky;
-        top: 0;
-        max-height: 100vh;
-        overflow-y: auto;
-        padding-right: 8px;
-      }
+  .sidebar-inner {
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
 
-      @media (max-width: 768px) {
-        .sidebar {
-          height: auto;
-          position: relative;
-        }
-      }
+  @media (max-width: 768px) {
+    .sidebar {
+      height: auto;
+      position: relative;
+    }
+  }
 
-      @media (max-width: 767.98px) {
-        .sidebar-inner {
-          max-height: 300px;
-          overflow-y: auto;
-        }
-      }
+  @media (max-width: 767.98px) {
+    .sidebar-inner {
+      max-height: 250px;
+      overflow-y: auto;
+    }
+  }
 
-      #news-list .card {
-        transition: transform 0.2s;
-      }
+  #news-list .card {
+    transition: transform 0.2s;
+  }
 
-      #news-list .card:hover {
-        transform: scale(1.02);
-      }
+  #news-list .card:hover {
+    transform: scale(1.02);
+  }
 
-      #currency-rate {
-        font-size: 14px;
-      }
+  #currency-rate {
+    font-size: 14px;
+  }
 
-      #currency-rate .border {
-        background-color: #f8f9fa;
-        transition: all 0.2s ease-in-out;
-      }
+  #currency-rate .border {
+    background-color: #f8f9fa;
+    transition: all 0.2s ease-in-out;
+  }
 
-      #currency-rate .border:hover {
-        background-color: #e2e6ea;
-        transform: scale(1.05);
-      }
+  #currency-rate .border:hover {
+    background-color: #e2e6ea;
+    transform: scale(1.05);
+  }
 
-      .carousel-item > div > div {
-        flex: 1 1 100%;
-      }
+  /* Carousel & currency cards */
+  #currency-rate .carousel-item > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
 
-      @media (min-width: 576px) {
-        .carousel-item > div > div {
-          flex: 1 1 22%;
-        }
-      }
+  #currency-rate .carousel-item > div > div {
+    flex: 1 1 22%;
+    min-width: 150px;
+    margin: 0.25rem;
+  }
 
-      .modal-lg {
-        max-width: 95%;
-        margin: 1.75rem auto;
-      }
-    </style>
+  @media (max-width: 576px) {
+    #currency-rate .carousel-item > div > div {
+      flex: 1 1 100%;
+      min-width: auto;
+      margin: 0.25rem 0;
+    }
+
+    #currency-rate h5 {
+      font-size: 1.1rem;
+    }
+
+    #currency-rate .d-flex.align-items-center {
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+    }
+
+    #currency-rate img {
+      width: 20px !important;
+      height: 15px !important;
+      margin: 0 6px !important;
+    }
+  }
+
+  .modal-lg {
+    max-width: 95%;
+    margin: 1.75rem auto;
+  }
+</style>
+
   </head>
 
   <body>
@@ -107,7 +134,7 @@
         <div class="col-md-4">
           <h4 class="mb-0">📰 World Watcher</h4>
         </div>
-        <div class="col-md-4 mt-1">
+        <div class="col-md-4 mt-2">
           <input
             type="text"
             id="input-search"

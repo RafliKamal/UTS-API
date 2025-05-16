@@ -162,7 +162,7 @@ function fetchTodayExchangeRates() {
       for (let i = 0; i < currenciesArr.length; i += itemsPerSlide) {
         let chunk = currenciesArr.slice(i, i + itemsPerSlide);
         slidesHtml += `<div class="carousel-item ${i === 0 ? "active" : ""}">
-                <div class="d-flex justify-content-around">
+                <div class="d-flex justify-content-around flex-wrap">
             `;
         chunk.forEach(([currency, rate]) => {
           const flagUrl =
@@ -172,9 +172,7 @@ function fetchTodayExchangeRates() {
                       <strong>1 USD =</strong>
                       <img src="${flagUrl}" alt="${currency}" style="width: 25px; height: 18px; object-fit: cover; margin: 0 8px;">
                       <strong>${currency}</strong>
-                      <span class="ml-auto">${parseFloat(rate).toFixed(
-                        2
-                      )}</span>
+                      <span class="ml-auto">${parseFloat(rate).toFixed(2)}</span>
                   </div>
               `;
         });
@@ -200,7 +198,6 @@ function fetchTodayExchangeRates() {
 
       $("#currency-rate").html(carouselHtml);
 
-      // Inisialisasi carousel setelah HTML berhasil diload
       $("#currencyCarousel").carousel({
         interval: 5000,
         pause: false,
