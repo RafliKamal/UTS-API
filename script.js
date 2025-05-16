@@ -36,7 +36,7 @@ function displayNews(articles) {
   let newsHtml = "";
   articles.forEach((article, index) => {
     newsHtml += `
-      <div class="col-md-4 d-flex">
+      <div class="col-12 col-sm-6 col-md-4 d-flex">
         <div class="card mb-3 w-100">
           <img src="${
             article.image || "https://via.placeholder.com/300x200?text=No+Image"

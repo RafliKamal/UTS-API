@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title>World Watcher</title>
     <link
       rel="stylesheet"
@@ -13,12 +16,20 @@
     <style>
       body {
         background-color: #f5f5f5;
+        padding: 0 10px;
       }
+
       .card-img-top {
         width: 100%;
-        height: 200px; /* tinggi tetap supaya semua kartu sama */
-        object-fit: cover; /* memotong bagian gambar supaya memenuhi area */
+        height: 200px;
+        object-fit: cover;
         object-position: center;
+      }
+
+      @media (max-width: 576px) {
+        .card-img-top {
+          height: 150px;
+        }
       }
 
       .sidebar {
@@ -34,6 +45,20 @@
         max-height: 100vh;
         overflow-y: auto;
         padding-right: 8px;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          height: auto;
+          position: relative;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        .sidebar-inner {
+          max-height: 300px;
+          overflow-y: auto;
+        }
       }
 
       #news-list .card {
@@ -59,7 +84,18 @@
       }
 
       .carousel-item > div > div {
-        flex: 1;
+        flex: 1 1 100%;
+      }
+
+      @media (min-width: 576px) {
+        .carousel-item > div > div {
+          flex: 1 1 22%;
+        }
+      }
+
+      .modal-lg {
+        max-width: 95%;
+        margin: 1.75rem auto;
       }
     </style>
   </head>
@@ -71,7 +107,7 @@
         <div class="col-md-4">
           <h4 class="mb-0">📰 World Watcher</h4>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 mt-1">
           <input
             type="text"
             id="input-search"
@@ -79,12 +115,12 @@
             placeholder="Search articles..."
           />
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mt-1">
           <select id="source-filter" class="form-control">
             <option value="">All Sources</option>
           </select>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-1 mt-1">
           <button id="button-search" class="btn btn-light btn-block">
             Search
           </button>
