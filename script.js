@@ -1,19 +1,16 @@
-
 let allArticles = [];
 
 const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
-const NEWS_API_KEY = "f3685549a70c41a493b3cd0ecda9e4db";
+const GNEWS_API_KEY = "d6863ac5fdbebfcfd59a1d91d078b11d"; 
 
-function fetchNews(query = "apple") {
+function fetchNews(query = "update") {
   $.ajax({
-    url: `${CORS_PROXY}https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}`,
+    url: `${CORS_PROXY}https://gnews.io/api/v4/search?q=${query}&lang=en&country=us&max=10&apikey=${GNEWS_API_KEY}`,
     method: "GET",
     success: function (response) {
-      if (response.status === "ok") {
-        allArticles = response.articles;
-        displayNews(allArticles);
-        populateSourceFilter(allArticles);
-      }
+      allArticles = response.articles || [];
+      displayNews(allArticles);
+      populateSourceFilter(allArticles);
     },
     error: function (err) {
       console.error("Error fetching news:", err);
@@ -26,7 +23,6 @@ function fetchNews(query = "apple") {
   });
 }
 
-// display news
 function displayNews(articles) {
   if (articles.length === 0) {
     $("#news-list").html(`
@@ -43,8 +39,7 @@ function displayNews(articles) {
       <div class="col-md-4 d-flex">
         <div class="card mb-3 w-100">
           <img src="${
-            article.urlToImage ||
-            "https://via.placeholder.com/300x200?text=No+Image"
+            article.image || "https://via.placeholder.com/300x200?text=No+Image"
           }" class="card-img-top" alt="${article.title}">
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">${article.title}</h5>
@@ -61,10 +56,9 @@ function displayNews(articles) {
   $("#news-list").html(newsHtml);
 }
 
-// masukkan data ke dalam filter source
 function populateSourceFilter(articles) {
-  let sources = [...new Set(articles.map((article) => article.source.name))];
-  let selectedSource = $("#source-filter").val(); // Simpan pilihan sumber sebelumnya
+  let sources = [...new Set(articles.map((article) => article.source?.name).filter(Boolean))];
+  let selectedSource = $("#source-filter").val();
 
   let sourceOptions = `<option value="">All Sources</option>`;
   sources.forEach((source) => {
@@ -72,105 +66,60 @@ function populateSourceFilter(articles) {
   });
 
   $("#source-filter").html(sourceOptions);
-
-  // Tetapkan kembali pilihan sebelumnya
   if (selectedSource) {
     $("#source-filter").val(selectedSource);
   }
 }
 
-// tampilkan full article detail
 function showDetails(index) {
   let article = allArticles[index];
   let detailsHtml = `
-        <h5>${article.title}</h5>
-        <p><strong>Source:</strong> ${article.source.name}</p>
-        <p><strong>Published At:</strong> ${new Date(
-          article.publishedAt
-        ).toLocaleString()}</p>
-        <p><strong>Author:</strong> ${article.author || "Unknown"}</p>
-        <img src="${
-          article.urlToImage ||
-          "https://via.placeholder.com/300x200?text=No+Image"
-        }" class="img-fluid my-3" />
-        <p>${article.description || "No description available."}</p>
-        <a href="${
-          article.url
-        }" target="_blank" class="btn btn-dark">Open Full Articles</a>
-    `;
+    <h5>${article.title}</h5>
+    <p><strong>Source:</strong> ${article.source?.name || "Unknown"}</p>
+    <p><strong>Published At:</strong> ${new Date(article.publishedAt).toLocaleString()}</p>
+    <img src="${
+      article.image || "https://via.placeholder.com/300x200?text=No+Image"
+    }" class="img-fluid my-3" />
+    <p>${article.description || "No description available."}</p>
+    <a href="${article.url}" target="_blank" class="btn btn-dark">Open Full Article</a>
+  `;
   $("#news-details").html(detailsHtml);
 }
 
 function searchAndFilterNews() {
-  console.log("searchAndFilterNews called");
   let keyword = $("#input-search").val().trim();
   let selectedSource = $("#source-filter").val();
-
-  if (keyword === "") {
-    keyword = "Apple"; // default keyword jika kosong
-  }
+  if (keyword === "") keyword = "example";
 
   $("#news-list").html(
     `<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"></div></div>`
   );
 
   $.ajax({
-    url: `${CORS_PROXY}https://newsapi.org/v2/everything?q=${keyword}&apiKey=${NEWS_API_KEY}`,
+    url: `${CORS_PROXY}https://gnews.io/api/v4/search?q=${keyword}&lang=en&country=us&max=10&apikey=${GNEWS_API_KEY}`,
     method: "GET",
     success: function (response) {
-      console.log("API Response:", response);
-      if (response.status === "ok") {
-        if (response.totalResults === 0) {
-          $("#news-list").html(`
-            <div class="col-12 text-center">
-              <div class="alert alert-warning">No news found for "<strong>${keyword}</strong>".</div>
-            </div>
-          `);
-          return;
-        }
+      let articles = response.articles || [];
+      populateSourceFilter(articles);
 
-        // Masukkan data ke filter sumber berita sebelum filter data
-        populateSourceFilter(response.articles);
-
-        let articles = response.articles;
-
-        // Filter berdasarkan sumber, jika ada
-        if (selectedSource) {
-          articles = articles.filter(
-            (article) => article.source.name === selectedSource
-          );
-        }
-
-        allArticles = articles;
-        displayNews(allArticles);
-      } else {
-        $("#news-list").html(`
-          <div class="col-12 text-center">
-            <div class="alert alert-danger">Error: ${
-              response.message || "Unknown error"
-            }</div>
-          </div>
-        `);
+      if (selectedSource) {
+        articles = articles.filter((article) => article.source?.name === selectedSource);
       }
+
+      allArticles = articles;
+      displayNews(allArticles);
     },
     error: function (jqXHR, textStatus, errorThrown) {
-      if (jqXHR.status === 429) {
-        $("#news-list").html(`
-          <div class="col-12 text-center">
-            <div class="alert alert-warning">API rate limit exceeded (429). Please wait and try again later.</div>
-          </div>
-        `);
-      } else {
-        console.error("Error fetching news:", textStatus, errorThrown);
-        $("#news-list").html(`
-          <div class="col-12 text-center">
-            <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
-          </div>
-        `);
-      }
+      console.error("Error fetching news:", textStatus, errorThrown);
+      $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
+        </div>
+      `);
     },
   });
 }
+
 
 //
 // API KURS
