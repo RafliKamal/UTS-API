@@ -19,7 +19,7 @@
         position: sticky;
         top: 0;
         height: 100vh;
-        overflow: hidden; 
+        overflow: hidden;
       }
 
       .sidebar-inner {
@@ -91,7 +91,7 @@
         <div class="col-md-3 mb-4 sidebar">
           <div class="card h-100">
             <div class="card-header bg-dark text-center bg-primary text-white">
-              🌤️ world weather
+              🌤️ weather
             </div>
             <div class="card-body p-2 sidebar-inner">
               <!-- Form Pencarian Kota -->
@@ -130,7 +130,11 @@
           <div id="currency-rate" class="alert alert-info text-center">
             Load kurs...
           </div>
-          <div id="news-list" class="row"></div>
+          <div id="news-list" class="row">
+            <div class="col-12 text-center">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

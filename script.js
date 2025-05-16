@@ -1,7 +1,7 @@
 const NEWS_API_KEY = "f3685549a70c41a493b3cd0ecda9e4db";
 let allArticles = [];
 
-// Fetch news articles
+// tampilkan berita ketika halaman dimuat
 function fetchNews(query = "apple") {
   $.ajax({
     url: `https://newsapi.org/v2/everything?q=${query}&apiKey=${NEWS_API_KEY}`,
@@ -19,27 +19,36 @@ function fetchNews(query = "apple") {
   });
 }
 
-// Display news
+// display news
 function displayNews(articles) {
+  if (articles.length === 0) {
+    $("#news-list").html(`
+      <div class="col-12 text-center">
+        <div class="alert alert-warning">No news found.</div>
+      </div>
+    `);
+    return;
+  }
+
   let newsHtml = "";
   articles.forEach((article, index) => {
     newsHtml += `
-    <div class="col-md-4 d-flex">
+      <div class="col-md-4 d-flex">
         <div class="card mb-3 w-100">
-            <img src="${
-              article.urlToImage ||
-              "https://via.placeholder.com/300x200?text=No+Image"
-            }" class="card-img-top" alt="${article.title}">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">${article.title}</h5>
-                <p class="card-text flex-grow-1">${
-                  article.description || "No description available."
-                }</p>
-                <button class="btn btn-dark mt-2" onclick="showDetails(${index})" data-toggle="modal" data-target="#newsModal">Read More</button>
-            </div>
+          <img src="${
+            article.urlToImage ||
+            "https://via.placeholder.com/300x200?text=No+Image"
+          }" class="card-img-top" alt="${article.title}">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">${article.title}</h5>
+            <p class="card-text flex-grow-1">${
+              article.description || "No description available."
+            }</p>
+            <button class="btn btn-dark mt-2" onclick="showDetails(${index})" data-toggle="modal" data-target="#newsModal">Read More</button>
+          </div>
         </div>
-    </div>
-`;
+      </div>
+    `;
   });
 
   $("#news-list").html(newsHtml);
@@ -48,7 +57,7 @@ function displayNews(articles) {
 // masukkan data ke dalam filter source
 function populateSourceFilter(articles) {
   let sources = [...new Set(articles.map((article) => article.source.name))];
-  let selectedSource = $("#source-filter").val(); // Simpan pilihan sebelumnya
+  let selectedSource = $("#source-filter").val(); // Simpan pilihan sumber sebelumnya
 
   let sourceOptions = `<option value="">All Sources</option>`;
   sources.forEach((source) => {
@@ -86,6 +95,7 @@ function showDetails(index) {
 }
 
 function searchAndFilterNews() {
+  console.log("searchAndFilterNews called");
   let keyword = $("#input-search").val().trim();
   let selectedSource = $("#source-filter").val();
 
@@ -101,29 +111,73 @@ function searchAndFilterNews() {
     url: `https://newsapi.org/v2/everything?q=${keyword}&apiKey=${NEWS_API_KEY}`,
     method: "GET",
     success: function (response) {
+      console.log("API Response:", response);
       if (response.status === "ok") {
-        allArticles = response.articles;
+        if (response.totalResults === 0) {
+          $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-warning">No news found for "<strong>${keyword}</strong>".</div>
+        </div>
+      `);
+          return;
+        }
 
-        // Jika user memilih filter source
+        // Masukkan data ke filter sumber berita sebelum filter data
+        populateSourceFilter(response.articles);
+
+        let articles = response.articles;
+
+        // Filter berdasarkan sumber, jika ada
         if (selectedSource) {
-          allArticles = allArticles.filter(
+          articles = articles.filter(
             (article) => article.source.name === selectedSource
           );
         }
 
+        allArticles = articles;
         displayNews(allArticles);
-        populateSourceFilter(response.articles); // Populate dari semua artikel sebelum difilter
+      } else if (
+        response.code === "rateLimited" ||
+        response.message?.includes("rate limit")
+      ) {
+        $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-warning">API rate limit exceeded. Please try again later.</div>
+        </div>
+      `);
+      } else {
+        
+        $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-danger">Error: ${
+            response.message || "Unknown error"
+          }</div>
+        </div>
+      `);
       }
     },
-    error: function (err) {
-      console.error("Error fetching news:", err);
+    error: function (jqXHR, textStatus, errorThrown) {
+      if (jqXHR.status === 429) {
+        $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-warning">API rate limit exceeded (429). Please wait and try again later.</div>
+        </div>
+      `);
+      } else {
+        console.error("Error fetching news:", textStatus, errorThrown);
+        $("#news-list").html(`
+        <div class="col-12 text-center">
+          <div class="alert alert-danger">Failed to fetch news. Please check your connection or try again.</div>
+        </div>
+      `);
+      }
     },
   });
 }
 
 //
 // API KURS
-// Currency API Key
+// pakai API dari freecurrencyapi.com
 function fetchTodayExchangeRates() {
   const API_KEY = "fca_live_rXjix2Yjx3QQmDz5CbXyeN74Vll7PkfAXihrALuI";
 
@@ -223,13 +277,13 @@ function fetchMultipleCitiesWeather() {
     "Brasília",
     "Canberra",
     "Ottawa",
-    "Seoul"
+    "Seoul",
   ];
 
   let requests = cities.map((city) =>
     $.ajax({
       url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id`,
-      method: "GET"
+      method: "GET",
     })
   );
 
@@ -253,14 +307,18 @@ function fetchMultipleCitiesWeather() {
       $("#weather-info").html(html);
     })
     .catch(() => {
-      $("#weather-info").html(`<div class="alert alert-danger text-center">Gagal memuat cuaca.</div>`);
+      $("#weather-info").html(
+        `<div class="alert alert-danger text-center">Gagal memuat cuaca.</div>`
+      );
     });
 }
 
 function fetchWeather(city) {
   const WEATHER_API_KEY = "9548221e8b634c39004ee0f0e639d970";
 
-  $("#weather-info").html(`<div class="text-center">Memuat cuaca untuk ${city}...</div>`);
+  $("#weather-info").html(
+    `<div class="text-center">Memuat cuaca untuk ${city}...</div>`
+  );
 
   $.ajax({
     url: `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id`,
@@ -280,27 +338,21 @@ function fetchWeather(city) {
       $("#weather-info").html(html);
     },
     error: function () {
-      $("#weather-info").html(`<div class="alert alert-danger text-center">Kota "${city}" tidak ditemukan.</div>`);
-    }
+      $("#weather-info").html(`
+    <div class="alert alert-danger text-center">
+       Weather for city "<strong>${city}</strong>" not found. Double check the spelling of the city.
+    </div>
+  `);
+    },
   });
 }
 
-
-
 // Events
-$("#button-search").click(searchAndFilterNews);
+
 $("#input-search").on("keypress", function (e) {
   if (e.keyCode === 13) searchAndFilterNews();
 });
 $("#source-filter").change(searchAndFilterNews);
-
-$("#search-city-btn").on("click", function () {
-  const city = $("#city-input").val().trim();
-  if (city) {
-    fetchWeather(city);
-    $("#show-all-cities").show();
-  }
-});
 
 $("#city-input").on("keypress", function (e) {
   if (e.keyCode === 13) {
@@ -308,20 +360,58 @@ $("#city-input").on("keypress", function (e) {
     if (city) {
       fetchWeather(city);
       $("#show-all-cities").show();
+    } else {
+      $("#weather-info").html(
+        `<div class="alert alert-warning text-center">Masukkan nama kota terlebih dahulu.</div>`
+      );
     }
   }
 });
-$("#show-all-cities").fadeIn();
+
+$("#show-all-cities").hide();
 
 
-$("#show-all-cities").on("click", function () {
-  fetchMultipleCitiesWeather();
-  $("#show-all-cities").hide();
-});
-
-$(document).ready(() => {
+$(document).ready(function () {
+  // Inisialisasi data saat halaman load
   fetchNews();
   fetchTodayExchangeRates();
   fetchMultipleCitiesWeather();
-  $("#show-all-cities").hide(); 
+
+  // Event saat tombol search diklik
+  $("#button-search").on("click", function () {
+    console.log("Button search clicked");
+    searchAndFilterNews();
+  });
+
+  $("#input-search").on("keypress", function (e) {
+    if (e.keyCode === 13) {
+      console.log("Enter pressed in search input");
+      searchAndFilterNews();
+    }
+  });
+
+  // Event saat filter sumber berita berubah
+  $("#source-filter").on("change", function () {
+    searchAndFilterNews();
+  });
+
+  // Event saat tombol "Search City" diklik
+  $("#search-city-btn").on("click", function () {
+    const city = $("#city-input").val().trim();
+    if (city) {
+      fetchWeather(city);
+      $("#show-all-cities").show();
+    } else {
+      $("#weather-info").html(
+        `<div class="alert alert-warning text-center">Masukkan nama kota terlebih dahulu.</div>`
+      );
+    }
+  });
+
+  // Event saat tombol "Show All Cities" diklik
+  $("#show-all-cities").on("click", function () {
+    fetchMultipleCitiesWeather();
+    $("#city-input").val(""); // Kosongkan input kota
+    $("#show-all-cities").hide();
+  });
 });
