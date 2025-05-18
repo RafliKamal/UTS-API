@@ -1,7 +1,7 @@
 let allArticles = [];
 
 const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
-const GNEWS_API_KEY = "eab375807c600c1869105715bbee7d8b"; 
+const GNEWS_API_KEY = "eab375807c600c1869105715bbee7d8b";
 
 function fetchNews(query = "update") {
   $.ajax({
@@ -11,14 +11,16 @@ function fetchNews(query = "update") {
       allArticles = response.articles || [];
       displayNews(allArticles);
       populateSourceFilter(allArticles);
+      $("#cors-instruction").addClass("d-none"); // Sembunyikan instruksi jika sebelumnya muncul
     },
     error: function (err) {
       console.error("Error fetching news:", err);
       $("#news-list").html(`
         <div class="col-12 text-center">
-          <div class="alert alert-danger">API usage has reached the limit, try again later</div>
+          <div class="alert alert-danger">API usage has reached the limit, or CORS Proxy is not enabled.</div>
         </div>
       `);
+      $("#cors-instruction").removeClass("d-none"); // Tampilkan instruksi aktivasi CORS
     },
   });
 }

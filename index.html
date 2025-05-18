@@ -147,6 +147,15 @@
   </head>
 
   <body>
+    <div id="cors-instruction" class="alert alert-warning text-center d-none">
+      CORS Proxy is not yet active. Click the button below to activate it (will
+      open a new tab), then click the "Request temporary access to the demo
+      server" button
+      <br />
+      <button class="btn btn-sm btn-primary mt-2" id="enable-cors-btn">
+        Enable CORS Proxy
+      </button>
+    </div>
     <!-- Topbar -->
     <div class="container-fluid">
       <div class="row bg-dark text-white py-3 px-4 align-items-center">
@@ -262,5 +271,17 @@
     <!-- Bootstrap & jQuery -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        $("#enable-cors-btn").on("click", function () {
+          window.open("https://cors-anywhere.herokuapp.com/corsdemo", "_blank");
+          setTimeout(() => {
+            if (typeof fetchNews === "function") {
+              fetchNews(); // Panggil ulang setelah proxy diaktifkan
+            }
+          }, 5000);
+        });
+      });
+    </script>
   </body>
 </html>
